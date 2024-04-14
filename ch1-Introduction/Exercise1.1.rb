@@ -7,7 +7,7 @@
 # implementations should be fast enough that even files containing a million
 # lines can be processed in a few seconds.
 
-require "../basic_data_structures.rb"
+require_relative '../basic_data_structures.rb'
 
 include DataStructures
 
@@ -17,4 +17,5 @@ small_file = File.open("one_hundred.txt")
 # order, so that the last input line is printed first, then the second last input
 # line, and so on.
 
-
+big_file.close()
+small_file.close()
