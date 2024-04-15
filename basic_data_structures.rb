@@ -7,12 +7,17 @@
 module DataStructures
   class FIFOQueue
     attr_reader :collection
-
-    def initialize
-      @collection = []
+    
+    def initialize(buffer_size)
+      @buffer_size = buffer_size
+      @collection = Array.new(buffer_size)
     end
 
     def add(x)
+      if size() == @buffer_size
+        # puts "Cannot exceed maximum buffer size #{@buffer_size}"
+        return nil
+      end
       @collection.push(x)
     end
 
@@ -32,8 +37,8 @@ module DataStructures
   class LIFOQueue
     attr_reader :collection
 
-    def initialize
-      @collection = []
+    def initialize(buffer)
+      @collection = Array.new(buffer)
     end
 
     def add(x)
