@@ -140,8 +140,9 @@ module DataStructures
     end
 
     def add(x)
-      @collection.each { |y| return nil if (y == x) }
+      @collection.each { |y| return false if (y == x) }
       @collection.push(x)
+      return true
     end
 
     def remove(x)
