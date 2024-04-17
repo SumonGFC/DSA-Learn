@@ -12,8 +12,8 @@ require_relative '../basic_data_structures.rb'
 
 include DataStructures
 
-big_file = File.open("one_mil.txt")
-small_file = File.open("one_hundred.txt")
+big_file = File.open("input.txt")
+small_file = File.open("small_input.txt")
 
 test_file = big_file.readlines()
 
@@ -82,8 +82,30 @@ end
 # that a file with a lot of duplicate lines does not use more memory than what
 # is required for the number of unique lines.
 
+def _part_4(file_lines)
+  dict = {}
+  file_lines.each do |line|
+    if dict[line].nil?
+      puts line
+      dict.store(line, "$") 
+    end
+  end
+end
+
+_part_4(test_file)
+
 
 
 
 small_file.close()
 big_file.close()
+
+#def count_dups(file_lines)
+#  x = 0
+#  file_lines.each do |line|
+#    if line.include?("dup")
+#      x = x + 1
+#    end
+#  end
+#  puts x
+#end
