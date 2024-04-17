@@ -158,15 +158,19 @@ module DataStructures
     attr_reader :collection
 
     def initialize
-      @collection = []
+      @collection = {}
     end
 
     def size
       @collection.length
     end
 
-    def add(x)
-      @collection.each { |y| return nil if (y == x) }
+    def add(x, x_size)
+      @collection.each do |k, v|
+        if @collection[x].nil?
+          @collection[x]
+
+      end
       @collection.push(x)
     end
 
