@@ -92,7 +92,18 @@ def _part_4(file_lines)
   end
 end
 
-_part_4(test_file)
+# Part 5 is basically the same as part 4 so I'm not gonna do it cuz i don't
+# wanna
+
+# Part 6: Read the entire input one line at a time. Then output all lines
+# sorted by length, with the shortest lines first. In the case where two lines
+# have the same length, resolve their order using the usual “sorted order.”
+# Duplicate lines should be printed only once.
+
+def _part_6(file_lines)
+
+end
+
 
 
 
