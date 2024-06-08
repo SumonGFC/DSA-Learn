@@ -1,51 +1,15 @@
-# Tree class represents our (balanced) Binary Seach Tree
-class Tree
-  attr_reader :root, :arr
+# frozen_string_literal: true
 
-  def initialize(arr)
-    @arr = arr
-  end
-
-  def build_tree(arr)
-    return nil if arr.empty?
-
-    mid = arr.length / 2
-    root = Node.new(arr[mid])
-    root.left = build_tree(arr[0...mid])
-    root.right = build_tree(arr[(mid + 1)..])
-    @root = root
-  end
-
-  def insert(node, curr_node)
-    return curr_node.left = node if curr_node.left.nil? && node < curr_node
-    return curr_node.right = node if curr_node.right.nil? && node > curr_node
-
-    if node < curr_node
-      insert(node, curr_node.left)
-    elsif node == curr_node
-      nil
-    else
-      insert(node, curr_node.right)
-    end
-  end
-
-
- def pretty_print(node = @root, prefix = '', is_left = true)
-   pretty_print(node.right, "#{prefix}#{is_left ? '│   ' : '    '}", false) if node.right
-   puts "#{prefix}#{is_left ? '└── ' : '┌── '}#{node.data}"
-   pretty_print(node.left, "#{prefix}#{is_left ? '    ' : '│   '}", true) if node.left
- end
-end
-
-# Node object represents a node in a balanced BST
+# Node object represents BST node
 class Node
   include Comparable
+
   attr_accessor :data, :left, :right
 
-  def initialize(data)
+  def initialize(data = nil, left = nil, right = nil)
     @data = data
-    @left = nil
-    @right = nil
+    @left = left
+    @right = right
   end
 
   def <=>(other)
@@ -62,8 +26,55 @@ class Node
   end
 end
 
+# Tree class represents our (balanced) Binary Seach Tree
+class Tree
+  attr_reader :root, :arr
+
+  def initialize(arr)
+    @arr = arr.sort.uniq
+    @root = build_tree(@arr)
+  end
+
+  def build_tree(arr)
+    return nil if arr.empty?
+
+    mid = arr.length / 2
+    Node.new(arr[mid], build_tree(arr[0...mid]), build_tree(arr[(mid + 1)..]))
+  end
+
+  def insert(node, start = @root)
+    return start.left = node if start.left.nil? && node < start
+    return start.right = node if start.right.nil? && node > start
+
+    if node < start
+      insert(node, start.left)
+    elsif node == start
+      nil
+    else
+      insert(node, start.right)
+    end
+  end
+
+  def delete(node, start_node = @root, parent = @root)
+    if node == start_node
+      delete_node(start_node, parent)
+    elsif node < start_node
+      delete(node, start_node.left, start_node)
+    else
+      delete(node, start_node.right, start_node)
+    end
+  end
+
+  def pretty_print(node = @root, prefix = '', is_left: true)
+    pretty_print(node.right, "#{prefix}#{is_left ? '│   ' : '    '}", is_left: false) if node.right
+    puts "#{prefix}#{is_left ? '└── ' : '┌── '}#{node.data}"
+    pretty_print(node.left, "#{prefix}#{is_left ? '    ' : '│   '}", is_left: true) if node.left
+  end
+end
+
+
+
 arr = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-arr3 = [1]
 bst = Tree.new(arr)
 bst.build_tree(bst.arr)
 # p bst.root
