@@ -55,14 +55,27 @@ class Tree
     end
   end
 
-  def delete(node, start_node = @root, parent = @root)
-    if node == start_node
-      delete_node(start_node, parent)
-    elsif node < start_node
-      delete(node, start_node.left, start_node)
+  def delete(node, root = @root)
+    return root if root.nil?
+
+    # If we find the node
+    if node == root.data
+      # handle leaf cases
+      return root.left if root.right.nil?
+      return root.right if root.left.nil?
+
+      # handle nodes with 2 children
+      next_largest = root.right
+      next_largest = next_largest.left until next_largest.left.nil?
+      root.data = next_largest.data
+      delete(next_largest.data, root.right)
+    elsif node < root.data
+      root.left = delete(node, root.left)
     else
-      delete(node, start_node.right, start_node)
+      root.right = delete(node, root.right)
     end
+
+    root
   end
 
   def pretty_print(node = @root, prefix = '', is_left: true)
@@ -78,10 +91,12 @@ arr = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 bst = Tree.new(arr)
 bst.build_tree(bst.arr)
 # p bst.root
-bst.pretty_print
 new_node = Node.new(10)
 new_node2 = Node.new(8.5)
-p bst.insert(new_node, bst.root)
-p bst.insert(new_node2, bst.root)
-p bst.root
+bst.insert(new_node, bst.root)
+bst.insert(new_node2, bst.root)
+
+bst.pretty_print
+
+bst.delete(5)
 bst.pretty_print
