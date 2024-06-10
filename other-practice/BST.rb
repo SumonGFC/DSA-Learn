@@ -78,6 +78,80 @@ class Tree
     root
   end
 
+  def find(node_val, root = @root)
+    if node_val.nil?
+      puts 'BST does not support nil value nodes'
+      return nil
+    elsif root.nil?
+      puts "Could not find #{node_val} in BST"
+      return nil
+    end
+
+    return root if node_val == root.data
+
+    if node_val < root.data
+      find(node_val, root.left)
+    else
+      find(node_val, root.right)
+    end
+  end
+
+  def level_order(root = @root, queue = [root])
+    until queue.empty?
+      head = queue.shift
+      block_given? ? yield(head) : puts(head.data)
+      queue.push(head.left) unless head.left.nil?
+      queue.push(head.right) unless head.right.nil?
+    end
+  end
+
+  def preorder(node = @root)
+    return if node.nil?
+
+    block_given? ? yield(node) : puts(node.data)
+    preorder(node.left)
+    preorder(node.right)
+  end
+
+  def inorder(node = @root)
+    return if node.nil?
+
+    preorder(node.left)
+    block_given? ? yield(node) : puts(node.data)
+    preorder(node.right)
+  end
+
+  def postorder(node = @root)
+    return if node.nil?
+
+    preorder(node.left)
+    preorder(node.right)
+    block_given? ? yield(node) : puts(node.data)
+  end
+
+  def height(node = @root)
+    return -1 if node.nil?
+
+    [height(node.left), height(node.right)].max + 1
+  end
+
+  def depth(node)
+    ctr = 0
+    tmp = @root
+    until node == tmp
+      ctr += 1
+      tmp = node < tmp ? tmp.left : tmp.right
+    end
+    ctr
+  end
+
+  def balanced?
+
+  end
+
+  def rebalance
+  end
+
   def pretty_print(node = @root, prefix = '', is_left: true)
     pretty_print(node.right, "#{prefix}#{is_left ? '│   ' : '    '}", is_left: false) if node.right
     puts "#{prefix}#{is_left ? '└── ' : '┌── '}#{node.data}"
@@ -90,13 +164,6 @@ end
 arr = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 bst = Tree.new(arr)
 bst.build_tree(bst.arr)
-# p bst.root
-new_node = Node.new(10)
-new_node2 = Node.new(8.5)
-bst.insert(new_node, bst.root)
-bst.insert(new_node2, bst.root)
-
 bst.pretty_print
-
-bst.delete(5)
-bst.pretty_print
+puts "height: #{bst.height}"
+puts "depth: #{bst.depth(bst.find(5))}"
