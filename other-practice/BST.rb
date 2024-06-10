@@ -32,6 +32,7 @@ class Tree
 
   def initialize(arr)
     @arr = arr.sort.uniq
+    p @arr
     @root = build_tree(@arr)
   end
 
@@ -42,16 +43,16 @@ class Tree
     Node.new(arr[mid], build_tree(arr[0...mid]), build_tree(arr[(mid + 1)..]))
   end
 
-  def insert(node, start = @root)
-    return start.left = node if start.left.nil? && node < start
-    return start.right = node if start.right.nil? && node > start
+  def insert(node_val, start = @root)
+    return start.left = Node.new(node_val) if start.left.nil? && node_val < start.data
+    return start.right = Node.new(node_val) if start.right.nil? && node_val > start.data
 
-    if node < start
-      insert(node, start.left)
-    elsif node == start
+    if node_val < start.data
+      insert(node_val, start.left)
+    elsif node_val == start.data
       nil
     else
-      insert(node, start.right)
+      insert(node_val, start.right)
     end
   end
 
@@ -78,55 +79,55 @@ class Tree
     root
   end
 
-  def find(node_val, root = @root)
-    if node_val.nil?
+  def find(val, root = @root)
+    if val.nil?
       puts 'BST does not support nil value nodes'
       return nil
     elsif root.nil?
-      puts "Could not find #{node_val} in BST"
+      puts "Could not find #{val} in BST"
       return nil
     end
 
-    return root if node_val == root.data
+    return root if val == root.data
 
-    if node_val < root.data
-      find(node_val, root.left)
-    else
-      find(node_val, root.right)
-    end
+    val < root.data ? find(val, root.left) : find(val, root.right)
   end
 
-  def level_order(root = @root, queue = [root])
+  def level_order(node = @root, queue = [node], accum = [], block: nil)
     until queue.empty?
       head = queue.shift
-      block_given? ? yield(head) : puts(head.data)
+      block.nil? ? accum << head.data : block.call(head)
       queue.push(head.left) unless head.left.nil?
       queue.push(head.right) unless head.right.nil?
     end
+    accum
   end
 
-  def preorder(node = @root)
+  def preorder(node = @root, accum = [], block: nil)
     return if node.nil?
 
-    block_given? ? yield(node) : puts(node.data)
-    preorder(node.left)
-    preorder(node.right)
+    block.nil? ? accum << node.data : block.call(node)
+    preorder(node.left, accum, block: block)
+    preorder(node.right, accum, block: block)
+    accum
   end
 
-  def inorder(node = @root)
+  def inorder(node = @root, accum = [], block: nil)
     return if node.nil?
 
-    preorder(node.left)
-    block_given? ? yield(node) : puts(node.data)
-    preorder(node.right)
+    inorder(node.left, accum, block: block)
+    block.nil? ? accum << node.data : block.call(node)
+    inorder(node.right, accum, block: block)
+    accum
   end
 
-  def postorder(node = @root)
+  def postorder(node = @root, accum = [], block: nil)
     return if node.nil?
 
-    preorder(node.left)
-    preorder(node.right)
-    block_given? ? yield(node) : puts(node.data)
+    postorder(node.left, accum, block: block)
+    postorder(node.right, accum, block: block)
+    block.nil? ? accum << node.data : block.call(node)
+    accum
   end
 
   def height(node = @root)
@@ -145,11 +146,20 @@ class Tree
     ctr
   end
 
-  def balanced?
+  def balanced?(node = @root)
+    return 0 if node.nil?
 
+    left = balanced?(node.left)
+    right = balanced?(node.right)
+
+    return -1 if (left - right).abs > 1 || left.negative? || right.negative?
+
+    [left, right].max + 1
   end
 
   def rebalance
+    vals = inorder
+    @root = build_tree(vals)
   end
 
   def pretty_print(node = @root, prefix = '', is_left: true)
@@ -159,11 +169,31 @@ class Tree
   end
 end
 
-
-
-arr = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-bst = Tree.new(arr)
-bst.build_tree(bst.arr)
+bst = Tree.new(Array.new(15) { rand(1..100) })
 bst.pretty_print
-puts "height: #{bst.height}"
-puts "depth: #{bst.depth(bst.find(5))}"
+p bst.balanced?
+pre = []
+pre_lamb = ->(node) { pre.push(node.data) }
+bst.preorder(bst.root, block: pre_lamb)
+p pre
+traversed_pre = bst.preorder
+p traversed_pre
+
+in_ = []
+in_lamb = ->(node) { in_.push(node.data) }
+bst.inorder(bst.root, block: in_lamb)
+p in_
+traversed_in = bst.inorder
+p traversed_in
+
+p bst.level_order
+
+new_vals = Array.new(10) { rand(50..200) }
+new_vals.each { |val| bst.insert(val) }
+bst.pretty_print
+p bst.balanced?
+
+bst.rebalance
+bst.pretty_print
+
+p bst.balanced?
