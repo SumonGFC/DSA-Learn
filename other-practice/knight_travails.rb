@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 # rubocop:disable Layout/IndentationWidth
 
+require 'benchmark'
+
 # Knights Travails Project: shortest path between 2 points on chess board
 class KT
         MOVESET = [
@@ -8,9 +10,10 @@ class KT
                 [-1, 2], [-1, -2], [-2, 1], [-2, -1]
         ].freeze
 
-        def initialize(start_pos, target)
+        def initialize(start_pos, target, size)
+                @size = size
                 # display
-                @grid = Array.new(8) { Array.new(8) { '_' } }
+                @grid = Array.new(@size) { Array.new(@size) { '_' } }
                 # setup
                 @start = Node.new(pos: start_pos)
                 @target = target
@@ -31,18 +34,19 @@ class KT
         def find_path
                 until @unprocessed.empty?
                         kids = generate_children(@unprocessed.shift)
-                        @num_processed += 1
                         @unprocessed += kids
                         break if kids.last&.pos == @target
                 end
                 path = []
                 node = @unprocessed.last
                 until node.nil?
+                        p node.pos
                         path << node.pos
                         node = node.parent
                 end
+                puts "path: #{path}"
                 update_grid(path)
-                puts "num of nodes visited: #{@unprocessed.length + @num_processed}"
+                puts "num of nodes visited: #{@num_processed}"
                 print
         end
 
@@ -51,6 +55,7 @@ class KT
                 MOVESET.each do |move|
                         new_pos = [pos[0] + move[0], pos[1] + move[1]]
                         new_node = Node.new(parent: parent_node, pos: new_pos)
+                        @num_processed += 1
                         next unless allowed?(new_node)
 
                         parent_node.append_child(new_node)
@@ -61,9 +66,9 @@ class KT
         end
 
         def allowed?(node)
-                node.pos[0].between?(0, 7) &&
-                  node.pos[1].between?(0, 7) &&
-                  @cells.key?(node.hash)
+                @cells.key?(node.hash) &&
+                node.pos[0].between?(0, @size - 1) &&
+                node.pos[1].between?(0, @size - 1)
         end
 
         def remove_cell(node)
@@ -72,8 +77,8 @@ class KT
 
         def generate_cells
                 cells = {}
-                8.times do |i|
-                        8.times do |j|
+                @size.times do |i|
+                        @size.times do |j|
                                 key = i.to_s << j.to_s
                                 cells[key] = nil
                         end
@@ -105,5 +110,5 @@ class KT
         end
 end
 
-x = KT.new([3, 6], [7, 7])
-x.find_path
+x = KT.new([0, 0], [9, 8], 11)
+puts(Benchmark.measure { x.find_path })
