@@ -14,15 +14,15 @@ class ArrayStack
   end
 
   # get ith element
-  def get(i)
+  def [](i)
     # O(1)
     @arr[i] # returns nil if out-of-bounds
   end
 
   # set ith element to x; check bounds; return old element
-  def set(i, x)
+  def []=(i, x)
     # O(1)
-    raise IndexError unless i.between?(-@arr.size, @arr.size - 1)
+    validate_index(i)
     raise NoMemoryError if @arr.empty?
 
     y = @arr[i]
@@ -33,9 +33,9 @@ class ArrayStack
   # append by default, return number of elements
   def insert(x, i = @num_elmts)
     # O(n - i + 1)
-    raise IndexError unless i.between?(-@arr.size, @arr.size)
+    raise IndexError, 'Index out of bounds' unless i.between?(0, @arr.size)
 
-    resize if @num_elmts == @arr.length
+    resize if @num_elmts == @arr.size
     (@arr.size - 1).downto(i) { |j| @arr[j] = @arr[j - 1] }
     @arr[i] = x
     @num_elmts += 1
@@ -44,7 +44,7 @@ class ArrayStack
   # remove element at index i if i is within bounds
   def remove(i)
     # O(n - i)
-    raise IndexError unless i.between?(0, @arr.size - 1)
+    validate_index(i)
 
     x = @arr.delete_at(i)
     @num_elmts -= 1
@@ -64,6 +64,10 @@ class ArrayStack
           end
     @arr.each_with_index { |x, i| tmp[i] = x }
     @arr = tmp
+  end
+
+  def validate_index(i)
+    raise IndexError, 'Index out of bounds' unless i.between?(0, @arr.size - 1)
   end
 
   def to_s
