@@ -92,6 +92,7 @@ end
 # instead, if we pre-calculate the required amount of space needed for the new
 # elements in c, we can achieve O(n) with just one call to resize.
 
+=begin
 if ARGV[0][0].downcase == 'e' # e for execute
   x = ArrayStack.new
   puts x
@@ -107,4 +108,76 @@ if ARGV[0][0].downcase == 'e' # e for execute
   puts x
   x.insert(6)
   puts x
+end
+=end
+
+# literally just a wrapper around Array class. After exploring the source code
+# (i.e. array.c), it becomes clear that there really is no "better way" to
+# implement an array in Ruby than just using default functionality.
+class FastArrayStack
+  def initialize
+    @ary = []
+  end
+
+  def size
+    @ary.size
+  end
+
+  def [](i)
+    @ary[i]
+  end
+
+  def []=(i, x)
+    @ary[i] = x
+  end
+
+  def insert(i, x)
+    @ary.insert(i, x)
+  end
+
+  def remove(i)
+    @ary.remove(i)
+  end
+end
+
+# Looking at array.c again, you can find the default array size macro,
+# ARY_DEFAULT_SIZE, to be 16. Assuming this is the number of elements in a ruby
+# array, we can implement a "linked" array. Implements the list interface with
+# multiple backing arrays, each of a size (2^n)*16. Each array will contain only
+# 15 elements, the 16th being a pointer to the next linked array
+# TODO: still have to implement this, although I'm not sure I will (got better
+# things to do tbh -- my time is better spent elsewhere).
+class LinkedArrayStack
+  def initialize
+    @ary0 = Array.new(16)
+    @size = 16
+  end
+
+  def find_ary(i)
+    # find n such that (2**n)*16 <= i < (2**(n+1))*16
+    # hence n <= log2(i/16) < n + 1
+    return 0 if i.between?(0, 15)
+
+    Math.log2(i / 16.0 + 1).floor
+  end
+
+  def index(i); end
+
+  def [](i)
+    @ary[index(i)]
+  end
+
+  def []=(i, x)
+    @ary[index(i)] = x
+  end
+
+  def insert(i, x); end
+
+  def insert_all(i, x); end
+
+  def remove(i); end
+
+  def resize; end
+
+  def alloc; end
 end
