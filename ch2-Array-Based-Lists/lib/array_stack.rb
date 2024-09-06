@@ -3,6 +3,9 @@
 # rubocop:disable Metrics/MethodParameterName
 
 require 'benchmark'
+require 'profile'
+
+puts "Execute 'ruby -rprofile array_stack.rb' to generate profile"
 
 # ArrayStack implements the List interface with a fixed size backing array
 class ArrayStack
@@ -84,57 +87,70 @@ class ArrayStack
   end
 end
 
-# Exercise 2.1. The List method insert_all(i, c) inserts all elements of the
-# collection c into the list at position i. (The insert(i,x) method is a
-# special case where c = {x}.) Explain why, for the data structures in this
-# chapter, it is not efficient to implement insert all(i, c) by repeated calls
-# to insert(i,x). Design and implement a more efficient implementation.
 
-# My immediate thought is: repeated calls to insert() will cause repeated calls
-# to resize(). If there are enough elements in c to cause m calls to resize(),
-# this will incur a running time cost of:
-#
-#       O( sum(i=0..m-1) { (2**i) * n } )    // each successive call doubles
-#
-# instead, if we pre-calculate the required amount of space needed for the new
-# elements in c, we can achieve O(n) with just one call to resize.
-
-# FastArrayStack implementation:
-# literally just wrap around Array class. After exploring the source code (i.e.
-# array.c), it becomes clear that there really is no "better way" to implement
-# an array in Ruby than just using default functionality -- I'm not sure what
-# the memory overhead is for wrapping all this functionality in a class but I
-# assume it is probably negligible
 
 # TESTING:
 # Here I will test the performance of my implementation of ArrayStack
-if ARGV.include 'test'
-  # 45 SECONDS ON MY MACHINE :(
-
+if ARGV.include? 'test'
+  puts 'running benchmark on builtin array.'
   y = []
   10.times { y.push(rand) }
   builtin = Benchmark.measure do
     1_000_000.times { rand >= 0.5 ? y.push(rand) : y.pop }
   end
+  puts 'builtin results:'
   puts builtin
-
-  z = FastArrayStack.new
 
   puts 'running benchmark on my custom ArrayStack. This might take a while...'
   x = ArrayStack.new
-  10.times { |i| x.insert(rand) }
+  10.times { x.insert(rand) }
   result = Benchmark.measure do
-    1_000_000.times do
-      if rand >= 0.5
-        x.insert(rand)
-      else
-        x.remove
-      end
-    end
+    1_000_000.times { rand >= 0.5 ? x.insert(rand) : x.remove }
   end
+  puts 'ArrayStack results:'
   puts result
+else
+  puts 'Running profile...'
+  puts 'Executing builtin array code...'
+  y = []
+  10.times { y.push(rand) }
+  1000.times { rand >= 0.5 ? y.push(rand) : y.pop }
+  puts 'Executing ArrayStack code...'
+  x = ArrayStack.new
+  10.times { x.insert(rand) }
+  1000.times { rand >= 0.5 ? x.insert(rand) : x.remove }
 end
 
+=begin
+Exercise 2.1. The List method insert_all(i, c) inserts all elements of the
+collection c into the list at position i. (The insert(i,x) method is a special
+case where c = {x}.) Explain why, for the data structures in this chapter, it
+is not efficient to implement insert all(i, c) by repeated calls to
+insert(i,x). Design and implement a more efficient implementation.
+
+Regarding the ArrayStack structure, my immediate thought is: repeated calls to
+insert() will cause repeated calls to resize(). If there are enough elements in
+c to cause m calls to resize(), this will incur a total running time cost of:
+
+      O( sum(i=0..m-1) { (2**i) * n } )    // each successive call doubles
+
+over all calls to resize(). Amortized over all calls to insert(), the running
+time cost is just O(|c|) i.e. size(c), as shown in the proof of Lemma 2.1
+
+Instead, if we pre-calculate the required amount of space needed for the new
+elements in c, we can achieve O(n) with just one call to resize (where n is the
+number of elements in the array before resizing).
+=end
+
+=begin
+FastArrayStack implementation: literally just wrap around Array class. After
+exploring the source code (i.e. array.c), it becomes clear that there really is
+no "better way" to implement an array in Ruby than just using default
+functionality -- I'm not sure what the memory overhead is for wrapping all this
+functionality in a class but I assume it is probably negligible
+=end
+
+=begin
 # Looking at array.c again, you can find the default array size macro,
 # ARY_DEFAULT_SIZE, to be 16. Assuming this is the number of elements in a ruby
 # array, we can implement a "linked" array. Implements the list interface with
@@ -142,6 +158,7 @@ end
 # 15 elements, the 16th being a pointer to the next linked array
 # TODO: still have to implement this, although I'm not sure I will (got better
 # things to do tbh -- my time is better spent elsewhere).
+
 class LinkedArrayStack
   def initialize
     @ary0 = Array.new(16)
@@ -176,3 +193,4 @@ class LinkedArrayStack
 
   def alloc; end
 end
+=end
