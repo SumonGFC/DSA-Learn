@@ -22,7 +22,7 @@ class ArrayStack
   # set ith element to x; check bounds; return old element
   def []=(i, x)
     # O(1)
-    validate_index(i)
+    raise IndexError, 'Index out of bounds' unless i.between?(0, @arr.size - 1)
     raise NoMemoryError if @arr.empty?
 
     y = @arr[i]
@@ -36,38 +36,45 @@ class ArrayStack
     raise IndexError, 'Index out of bounds' unless i.between?(0, @arr.size)
 
     resize if @num_elmts == @arr.size
-    (@arr.size - 1).downto(i) { |j| @arr[j] = @arr[j - 1] }
+    shift(i, :right)
     @arr[i] = x
     @num_elmts += 1
   end
 
-  # remove element at index i if i is within bounds
-  def remove(i)
+  # pop by default; return removed element
+  def remove(i = @num_elmts - 1)
     # O(n - i)
-    validate_index(i)
+    return if @arr[i].nil?
+    raise IndexError, 'Index out of bounds' unless i.between?(0, @arr.size - 1)
 
-    x = @arr.delete_at(i)
+    removed = @arr[i]
+    shift(i, :left)
+    @arr[-1] = nil
     @num_elmts -= 1
-    resize if @arr.length >= 3 * @num_elmts
-    x
+    resize if @arr.size >= 3 * @num_elmts
+    removed
   end
 
   private
 
   # resize backing array based on number of requested number of chunks
-  def resize(chunks = 1)
+  def resize
     # O(n)
-    tmp = if caller_locations[0].label.to_sym == :insert_all
-            Array.new(@num_elmts.zero? ? 1 : (2**chunks) * @num_elmts)
-          else
-            Array.new(@num_elmts.zero? ? 1 : 2 * @num_elmts)
-          end
-    @arr.each_with_index { |x, i| tmp[i] = x }
+    # num_elmts.zero? ? 1 : (2**chunks) * @num_elmts
+    num = @num_elmts.zero? ? 1 : 2 * @num_elmts
+    tmp = Array.new(num)
+    [tmp.size, @arr.size].min.times { |i| tmp[i] = @arr[i] }
     @arr = tmp
   end
 
-  def validate_index(i)
-    raise IndexError, 'Index out of bounds' unless i.between?(0, @arr.size - 1)
+  def shift(i, dir)
+    if dir == :left
+      i.upto(@arr.size - 2) { |j| @arr[j] = @arr[j + 1] }
+    elsif dir == :right
+      (@arr.size - 1).downto(i) { |j| @arr[j] = @arr[j - 1] }
+    else
+      raise ArgumentError, "#shift passed illegal direction: #{dir}"
+    end
   end
 
   def to_s
@@ -92,52 +99,40 @@ end
 # instead, if we pre-calculate the required amount of space needed for the new
 # elements in c, we can achieve O(n) with just one call to resize.
 
-=begin
-if ARGV[0][0].downcase == 'e' # e for execute
+# FastArrayStack implementation:
+# literally just wrap around Array class. After exploring the source code (i.e.
+# array.c), it becomes clear that there really is no "better way" to implement
+# an array in Ruby than just using default functionality -- I'm not sure what
+# the memory overhead is for wrapping all this functionality in a class but I
+# assume it is probably negligible
+
+# TESTING:
+# Here I will test the performance of my implementation of ArrayStack
+if ARGV.include 'test'
+  # 45 SECONDS ON MY MACHINE :(
+
+  y = []
+  10.times { y.push(rand) }
+  builtin = Benchmark.measure do
+    1_000_000.times { rand >= 0.5 ? y.push(rand) : y.pop }
+  end
+  puts builtin
+
+  z = FastArrayStack.new
+
+  puts 'running benchmark on my custom ArrayStack. This might take a while...'
   x = ArrayStack.new
-  puts x
-  x.insert(1)
-  puts x
-  x.insert(2)
-  puts x
-  x.insert(3)
-  puts x
-  x.insert(4)
-  puts x
-  x.insert(5)
-  puts x
-  x.insert(6)
-  puts x
-end
-=end
-
-# literally just a wrapper around Array class. After exploring the source code
-# (i.e. array.c), it becomes clear that there really is no "better way" to
-# implement an array in Ruby than just using default functionality.
-class FastArrayStack
-  def initialize
-    @ary = []
+  10.times { |i| x.insert(rand) }
+  result = Benchmark.measure do
+    1_000_000.times do
+      if rand >= 0.5
+        x.insert(rand)
+      else
+        x.remove
+      end
+    end
   end
-
-  def size
-    @ary.size
-  end
-
-  def [](i)
-    @ary[i]
-  end
-
-  def []=(i, x)
-    @ary[i] = x
-  end
-
-  def insert(i, x)
-    @ary.insert(i, x)
-  end
-
-  def remove(i)
-    @ary.remove(i)
-  end
+  puts result
 end
 
 # Looking at array.c again, you can find the default array size macro,
