@@ -3,14 +3,14 @@
 # rubocop:disable Metrics/MethodParameterName
 
 require 'benchmark'
-require 'profile'
 
-puts "Execute 'ruby -rprofile array_stack.rb' to generate profile"
+puts "Execute 'ruby -rprofile array_stack.rb' to generate profile (requires profile gem)"
+puts "Execute 'ruby array_stack.rb test' to run benchmark"
+
+# TODO: Implement #insert_all and handing out chunks of memory in #resize
 
 # ArrayStack implements the List interface with a fixed size backing array
 class ArrayStack
-  attr_reader :back_array, :num_elmts
-
   def initialize(size = 1)
     @arr = Array.new(size)
     @num_elmts = 0
@@ -18,13 +18,11 @@ class ArrayStack
 
   # get ith element
   def [](i)
-    # O(1)
     @arr[i] # returns nil if out-of-bounds
   end
 
   # set ith element to x; check bounds; return old element
   def []=(i, x)
-    # O(1)
     raise IndexError, 'Index out of bounds' unless i.between?(0, @arr.size - 1)
     raise NoMemoryError if @arr.empty?
 
@@ -33,9 +31,8 @@ class ArrayStack
     y # normal assignment returns the newly assigned value
   end
 
-  # append by default, return number of elements
+  # append by default; return number of elements
   def insert(x, i = @num_elmts)
-    # O(n - i + 1)
     raise IndexError, 'Index out of bounds' unless i.between?(0, @arr.size)
 
     resize if @num_elmts == @arr.size
@@ -46,7 +43,6 @@ class ArrayStack
 
   # pop by default; return removed element
   def remove(i = @num_elmts - 1)
-    # O(n - i)
     return if @arr[i].nil?
     raise IndexError, 'Index out of bounds' unless i.between?(0, @arr.size - 1)
 
@@ -60,9 +56,9 @@ class ArrayStack
 
   private
 
-  # resize backing array based on number of requested number of chunks
+  # resize backing array
   def resize
-    # O(n)
+    # For exercise 2.1:
     # num_elmts.zero? ? 1 : (2**chunks) * @num_elmts
     num = @num_elmts.zero? ? 1 : 2 * @num_elmts
     tmp = Array.new(num)
@@ -87,38 +83,34 @@ class ArrayStack
   end
 end
 
-
-
 # TESTING:
-# Here I will test the performance of my implementation of ArrayStack
 if ARGV.include? 'test'
-  puts 'running benchmark on builtin array.'
-  y = []
-  10.times { y.push(rand) }
-  builtin = Benchmark.measure do
-    1_000_000.times { rand >= 0.5 ? y.push(rand) : y.pop }
-  end
-  puts 'builtin results:'
-  puts builtin
-
-  puts 'running benchmark on my custom ArrayStack. This might take a while...'
+  puts 'Running benchmarks...'
   x = ArrayStack.new
-  10.times { x.insert(rand) }
-  result = Benchmark.measure do
-    1_000_000.times { rand >= 0.5 ? x.insert(rand) : x.remove }
+  y = []
+
+  192.times do
+    x.insert(rand)
+    y.push(rand)
   end
-  puts 'ArrayStack results:'
-  puts result
+
+  # Don't try to run this with 1_000_000 (takes over a minute hence is unacceptable)
+  Benchmark.bmbm do |bm|
+    bm.report('Builtin') { 10000.times { rand >= 0.5 ? y.push(rand) : y.pop } }
+    bm.report('ArrayStack') { 10000.times { rand >= 0.5 ? x.insert(rand) : x.remove } }
+  end
+  puts 'Results:'
 else
   puts 'Running profile...'
   puts 'Executing builtin array code...'
   y = []
-  10.times { y.push(rand) }
+  8.times { y.push(rand) }
   1000.times { rand >= 0.5 ? y.push(rand) : y.pop }
   puts 'Executing ArrayStack code...'
   x = ArrayStack.new
-  10.times { x.insert(rand) }
+  8.times { x.insert(rand) }
   1000.times { rand >= 0.5 ? x.insert(rand) : x.remove }
+  puts "\n\n\nProfile Results:"
 end
 
 =begin
@@ -151,13 +143,13 @@ functionality in a class but I assume it is probably negligible
 =end
 
 =begin
-# Looking at array.c again, you can find the default array size macro,
-# ARY_DEFAULT_SIZE, to be 16. Assuming this is the number of elements in a ruby
-# array, we can implement a "linked" array. Implements the list interface with
-# multiple backing arrays, each of a size (2^n)*16. Each array will contain only
-# 15 elements, the 16th being a pointer to the next linked array
-# TODO: still have to implement this, although I'm not sure I will (got better
-# things to do tbh -- my time is better spent elsewhere).
+Looking at array.c again, you can find the default array size macro,
+ARY_DEFAULT_SIZE, to be 16. Assuming this is the number of elements in a ruby
+array, we can implement a "linked" array. Implements the list interface with
+multiple backing arrays, each of a size (2^n)*16. Each array will contain only
+15 elements, the 16th being a pointer to the next linked array TODO: still have
+to implement this, although I'm not sure I will (got better things to do tbh --
+my time is better spent elsewhere).
 
 class LinkedArrayStack
   def initialize
