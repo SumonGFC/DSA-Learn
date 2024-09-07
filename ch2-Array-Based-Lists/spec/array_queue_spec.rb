@@ -22,26 +22,62 @@ describe ArrayQueue do
   end
 
   describe '#add' do
-    let(:empty_queue) { described_class.new }
-    context 'with empty array' do
-      xit 'inserts element at the head' do
+    context 'with one element inserted into empty array' do
+      let(:empty_queue) { described_class.new }
+
+      it 'inserts element at the head' do
+        empty_queue.add(:elmt)
+        expect(empty_queue.head).to be :elmt
       end
 
-      xit 'increments the reference to number of elements' do
+      it 'tail points to head' do
+        empty_queue.add(:elmt)
+        expect(empty_queue.tail).to eq (empty_queue.head)
+      end
+
+      it 'increments the reference to number of elements' do
+        empty_queue.add(0)
+        expect(empty_queue.num).to be 1
       end
     end
 
     context 'with half-filled array' do
-      xit 'adds new element to the end of the array' do
+      let(:size) { 10 }
+      let(:half_filled_queue) do
+        x = described_class.new
+        size.times { x.add(0) }
+        x
       end
 
-      xit 'increments the reference to number of elements' do
+      it 'adds new element to the end of the array' do
+        half_filled_queue.add(:new)
+        expect(half_filled_queue.tail).to be :new
+      end
+
+      it 'increments the reference to number of elements' do
+        expect { half_filled_queue.add(:new) }
+          .to change { half_filled_queue.num }
+          .from(size)
+          .to(size + 1)
       end
     end
 
-    context 'with a full array' do
-      xit 'resizes the array to twice its previous size' do
+    context 'when one element shy of resizing' do
+      let(:queue) { described_class.new }
+
+      it 'resizes the array to twice its previous size' do
+        10.times do
+          queue.add(0) until queue.len == queue.num
+          old_len = queue.len
+          queue.add(0)
+          new_len = queue.len
+          expect(new_len).to eq(2 * old_len)
+        end
       end
     end
   end
+
+  describe '#remove' do
+  end
 end
+
