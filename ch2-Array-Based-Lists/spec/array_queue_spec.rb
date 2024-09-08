@@ -78,6 +78,62 @@ describe ArrayQueue do
   end
 
   describe '#remove' do
+    context 'with empty queue' do 
+      let(:empty_queue) { described_class.new }
+
+      it 'leaves the queue unchanged and returns nil' do
+        res = empty_queue.remove
+        expect(res).to be nil
+      end
+
+      it 'leaves head pointer and number of elements unchanged' do
+        empty_queue.remove
+        expect(empty_queue.head_ptr).to eq 0
+        expect(empty_queue.num).to eq 0
+      end
+    end
+
+    context 'with filled queue and head_ptr offset' do
+      let(:filled_queue) do
+        x = described_class.new
+        10.times { |i| x.add(("item#{i}").to_sym) }
+        3.times { x.remove }
+        x
+      end
+
+      it 'removes and returns the head of the list' do
+        res = filled_queue.remove
+        expect(res).to be :item3
+      end
+
+      it 'increments head pointer' do
+        old_head = filled_queue.head_ptr
+        expect { filled_queue.remove }
+          .to change { filled_queue.head_ptr }
+          .from(old_head)
+          .to(old_head + 1)
+      end
+
+      it 'decrements number of elements' do
+        old_num = filled_queue.num
+        expect { filled_queue.remove }
+          .to change { filled_queue.num }
+          .from(old_num)
+          .to(old_num - 1)
+      end
+    end
+
+    context 'with a big filled queue' do
+      let(:big_queue) do
+        x = described_class.new
+        (2**10).times do |i|
+          x.add(i)
+        end
+        x
+      end
+
+      it 'resizes when number of elements is one-third of array size' do
+      end
+    end
   end
 end
-

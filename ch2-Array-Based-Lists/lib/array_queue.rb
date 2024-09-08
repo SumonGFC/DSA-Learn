@@ -19,14 +19,24 @@ class ArrayQueue
   end
 
   def tail
-    @arr[(@head_ptr + @num - 1) % @arr.size]
+    @arr[(@head_ptr + @num - 1) % len]
   end
 
   def add(x)
     resize if @arr.size < @num + 1
-    @arr[(@head_ptr + @num) % @arr.size] = x
+    @arr[(@head_ptr + @num) % len] = x
     @num += 1
     true
+  end
+
+  def remove
+    return nil if @num.zero?
+
+    removed = head
+    @head_ptr = (@head_ptr + 1) % len
+    @num -= 1
+    resize if len >= 3 * @num
+    removed
   end
 
   private
