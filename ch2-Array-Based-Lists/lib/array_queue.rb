@@ -51,4 +51,18 @@ class ArrayQueue
 end
 
 if ARGV.include? 'test'
+  big_queue = ArrayQueue.new
+  (2**10).times { |i| big_queue.add(i) }
+  puts(big_queue.len)
+
+  until big_queue.num == 1
+    old = big_queue.len
+    big_queue.remove
+    if big_queue.num <= old / 3
+      puts "old len #{old}"
+      puts "new len: #{big_queue.len}"
+      puts "num: #{big_queue.num}"
+      puts
+    end
+  end
 end

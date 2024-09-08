@@ -133,6 +133,14 @@ describe ArrayQueue do
       end
 
       it 'resizes when number of elements is one-third of array size' do
+        until big_queue.num == 1
+          old_size = big_queue.len
+          big_queue.remove
+          new_size = big_queue.len
+          if big_queue.num <= old_size / 3
+            expect(new_size).to eq(2 * big_queue.num)
+          end
+        end
       end
     end
   end
