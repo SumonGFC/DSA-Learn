@@ -20,6 +20,14 @@ class ArrayDeque
     @num = 0 # number of elements in the queue
   end
 
+  def head
+    @arr[@head_ptr]
+  end
+
+  def tail
+    @arr[@head_ptr + @num % size]
+  end
+
   def size
     @arr.size
   end
@@ -36,7 +44,7 @@ class ArrayDeque
     removed
   end
 
-  def add(i, x)
+  def add(i = @head_ptr, x)
     return unless i.between?(0, size - 1)
 
     resize if @num == size
@@ -77,7 +85,7 @@ class ArrayDeque
   end
 
   def in_order
-    @arr.rotate(@head)
+    @arr.rotate(@head_ptr)
   end
 
   private
