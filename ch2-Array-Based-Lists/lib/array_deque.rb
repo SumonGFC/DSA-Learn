@@ -32,6 +32,10 @@ class ArrayDeque
     @arr.size
   end
 
+  def num
+    @arr.num
+  end
+
   def get(i)
     @arr[(@head_ptr + i) % size]
   end
