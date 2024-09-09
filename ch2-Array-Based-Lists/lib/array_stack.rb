@@ -17,12 +17,12 @@ class ArrayStack
   end
 
   # get ith element
-  def [](i)
+  def get(i)
     @arr[i] # returns nil if out-of-bounds
   end
 
   # set ith element to x; check bounds; return old element
-  def []=(i, x)
+  def set(i, x)
     raise IndexError, 'Index out of bounds' unless i.between?(0, @arr.size - 1)
     raise NoMemoryError if @arr.empty?
 
@@ -140,49 +140,4 @@ exploring the source code (i.e. array.c), it becomes clear that there really is
 no "better way" to implement an array in Ruby than just using default
 functionality -- I'm not sure what the memory overhead is for wrapping all this
 functionality in a class but I assume it is probably negligible
-=end
-
-=begin
-Looking at array.c again, you can find the default array size macro,
-ARY_DEFAULT_SIZE, to be 16. Assuming this is the number of elements in a ruby
-array, we can implement a "linked" array. Implements the list interface with
-multiple backing arrays, each of a size (2^n)*16. Each array will contain only
-15 elements, the 16th being a pointer to the next linked array TODO: still have
-to implement this, although I'm not sure I will (got better things to do tbh --
-my time is better spent elsewhere).
-
-class LinkedArrayStack
-  def initialize
-    @ary0 = Array.new(16)
-    @size = 16
-  end
-
-  def find_ary(i)
-    # find n such that (2**n)*16 <= i < (2**(n+1))*16
-    # hence n <= log2(i/16) < n + 1
-    return 0 if i.between?(0, 15)
-
-    Math.log2(i / 16.0 + 1).floor
-  end
-
-  def index(i); end
-
-  def [](i)
-    @ary[index(i)]
-  end
-
-  def []=(i, x)
-    @ary[index(i)] = x
-  end
-
-  def insert(i, x); end
-
-  def insert_all(i, x); end
-
-  def remove(i); end
-
-  def resize; end
-
-  def alloc; end
-end
 =end

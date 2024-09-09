@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# Idea with this data structure is to manage enqueue/dequeue by modifying
+# a head pointer, so that we can get constant bound on these ops.
 # Implements FIFO queue
 class ArrayQueue
   attr_reader :arr, :head_ptr, :num
