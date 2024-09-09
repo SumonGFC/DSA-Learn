@@ -29,6 +29,8 @@ class ArrayDeque
   end
 
   def set(i, x)
+    return if @num.zero?
+
     removed = @arr[(@head_ptr + i) % size]
     @arr[(@head_ptr + i) % size] = x
     removed
@@ -68,6 +70,10 @@ class ArrayDeque
     @num -= 1
     resize if size >= 3 * @num
     removed
+  end
+
+  def in_order
+    @arr.rotate(@head)
   end
 
   private
