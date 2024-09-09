@@ -37,6 +37,8 @@ class ArrayDeque
   end
 
   def add(i, x)
+    return unless i.between?(0, size - 1)
+
     resize if @num == size
     # i near the head of the queue
     if i < @num / 2
@@ -57,6 +59,8 @@ class ArrayDeque
   end
 
   def remove(i)
+    return unless i.between?(0, size - 1)
+
     removed = @arr[(@head_ptr + i) % size]
     if i < @num / 2
       i.downto(1) do |k|
