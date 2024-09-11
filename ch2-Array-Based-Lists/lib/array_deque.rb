@@ -25,7 +25,7 @@ class ArrayDeque
   end
 
   def tail
-    @arr[@head_ptr + @num % size]
+    @arr[@head_ptr + @num - 1 % size]
   end
 
   def size
@@ -33,7 +33,7 @@ class ArrayDeque
   end
 
   def num
-    @arr.num
+    @num
   end
 
   def get(i)
@@ -48,9 +48,8 @@ class ArrayDeque
     removed
   end
 
-  def add(i = @head_ptr, x)
-    return unless i.between?(0, size - 1)
-
+  # add last by default
+  def add(x, i = @num)
     resize if @num == size
     # i near the head of the queue
     if i < @num / 2
@@ -103,7 +102,21 @@ class ArrayDeque
   end
 
   def to_s
-    "array (unordered): #{@arr}" \
-      "array (ordered): #{@arr.rotate(@head)}"
+    "(array): #{@arr}\n" \
+    "(ordered): #{in_order}\n" \
+    "(head_ptr): #{@head_ptr}\n" \
   end
+end
+
+if ARGV.include? 'test'
+  x = ArrayDeque.new
+  10.times do |i|
+    x.add(i)
+    puts x
+    puts
+  end
+  x.add(:new_tail, x.num)
+  puts x
+  p x.tail
+  p x.num
 end
