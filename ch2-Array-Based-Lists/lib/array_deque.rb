@@ -14,6 +14,8 @@
 
 # Implements List interface
 class ArrayDeque
+  attr_reader :head_ptr, :num, :arr
+
   def initialize
     @arr = Array.new(1)
     @head_ptr = 0
@@ -30,10 +32,6 @@ class ArrayDeque
 
   def size
     @arr.size
-  end
-
-  def num
-    @num
   end
 
   def get(i)
