@@ -12,7 +12,10 @@ class SLL
     @tail = nil
   end
 
-  def push(obj)
+  # MAIN OPERATIONS
+
+  # Push: Add obj to head of list
+  def add_first(obj)
     node = Node.new(obj)
     node.next = @head
     @head = node
@@ -20,7 +23,31 @@ class SLL
     @len += 1
   end
 
-  # Helpers
+  # Pop: Remove obj from head of list
+  def remove_first
+  end
+
+  # Enqueue: Add obj to tail of list
+  def add_last(obj)
+  end
+
+  # Remove tail of list; In the book, the remove op just calls pop(). However,
+  # we might as well implement the full Deque interface (add first/last, remove
+  # first/last)
+  def remove_last
+  end
+
+  # EXTENSIONS
+  def at(index)
+  end
+
+  def contains?(obj)
+  end
+
+  def find(obj)
+  end
+
+  # HELPERS
   def head
     @head&.data
   end
