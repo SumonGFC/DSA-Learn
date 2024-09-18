@@ -4,10 +4,10 @@
 #   - push(x), pop(), add(x) and remove() in O(1) time
 #   - get(i) and set(i, x) in O(n) worst case
 class SLL
-  attr_reader :n
+  attr_reader :len
 
   def initialize
-    @n = 0
+    @len = 0
     @head = nil
     @tail = nil
   end
@@ -16,22 +16,22 @@ class SLL
     node = Node.new(obj)
     node.next = @head
     @head = node
-    @tail = @head if n.zero?
-    @n += 1
+    @tail = @head if len.zero?
+    @len += 1
   end
 
   # Helpers
   def head
-    @head.data
+    @head&.data
   end
 
   def tail
-    @tail.data
+    @tail&.data
   end
 
   def to_s
     node = @head
-    str = "N: #{n}\nHead: #{head}\nTail: #{tail}\nList: "
+    str = "N: #{len}\nHead: #{head}\nTail: #{tail}\nList: "
     until node.nil?
       str += "(#{node.data}) -> "
       node = node.next
