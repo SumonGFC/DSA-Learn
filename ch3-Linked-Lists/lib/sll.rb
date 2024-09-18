@@ -38,7 +38,10 @@ class SLL
   end
 
   # EXTENSIONS
-  def at(index)
+  def get(index)
+  end
+
+  def set(index, obj)
   end
 
   def contains?(obj)
