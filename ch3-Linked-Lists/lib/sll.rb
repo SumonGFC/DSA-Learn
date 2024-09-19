@@ -34,6 +34,14 @@ class SLL
 
   # Enqueue: Add obj to tail of list
   def add_last(obj)
+    if len.zero?
+      add_first(obj)
+    else
+      node = Node.new(obj)
+      @tail.next = node
+      @tail = node
+      @len += 1
+    end
   end
 
   # Remove tail of list; In the book, the remove op just calls pop(). However,
@@ -81,7 +89,7 @@ class SLL
     end
     arr
   end
-  
+
   def to_s
     node = @head
     str = "N: #{len}\nHead: #{head}\nTail: #{tail}\nList: "
