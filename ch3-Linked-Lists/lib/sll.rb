@@ -25,6 +25,11 @@ class SLL
 
   # Pop: Remove obj from head of list
   def remove_first
+    removed = @head&.data
+    @head = @head&.next
+    @len = [@len - 1, 0].max
+    @tail = nil if @len.zero?
+    removed
   end
 
   # Enqueue: Add obj to tail of list
@@ -51,6 +56,14 @@ class SLL
   end
 
   # HELPERS
+  def head_ptr
+    @head
+  end
+
+  def tail_ptr
+    @tail
+  end
+
   def head
     @head&.data
   end
@@ -59,6 +72,16 @@ class SLL
     @tail&.data
   end
 
+  def to_a
+    arr = []
+    node = @head
+    until node.nil?
+      arr << node.data
+      node = node.next
+    end
+    arr
+  end
+  
   def to_s
     node = @head
     str = "N: #{len}\nHead: #{head}\nTail: #{tail}\nList: "
